@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Built archives and indices — these belong to the user's machine, never to git.
+# A PTG store is hundreds of megabytes of JSON plus a float32 matrix; committing
+# one would bloat history permanently and leak whatever was indexed.
+.ptg/
+.code_ptg/
+store_*/
+*.npy
+embed_cache/
+
+# Measurement output and downloaded datasets
+out/
+out_code/
+data/
+reports_v3/
+snapshots/
+
+# Logs
+logs/
+*.log
+ptg.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
