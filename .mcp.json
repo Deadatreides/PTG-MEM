@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ptg-mem": {
+      "command": "python",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/bin/ptg-mcp.py"]
+    }
+  }
+}

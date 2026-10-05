@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PTG-MEM</title>
+<link rel="stylesheet" href="app.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='8' cy='22' r='4' fill='%234f7cff'/%3E%3Ccircle cx='22' cy='9' r='4' fill='%2322b3a6'/%3E%3Ccircle cx='24' cy='24' r='3' fill='%23f0a33a'/%3E%3Cpath d='M8 22 22 9M22 9l2 15' stroke='%23889' stroke-width='2'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><path d="M8 22 22 9M22 9l2 15M8 22l16 2" stroke="currentColor" stroke-width="1.6" opacity=".45"/><circle cx="8" cy="22" r="4" fill="var(--c-accent)"/><circle cx="22" cy="9" r="4" fill="var(--c-teal)"/><circle cx="24" cy="24" r="3" fill="var(--c-amber)"/></svg>
+    <span>PTG-MEM</span>
+  </div>
+  <select id="project" aria-label="Project"></select>
+  <div class="chips" id="chips"></div>
+  <div class="spacer"></div>
+  <span id="lic" class="pill"></span>
+</header>
+
+<div id="nag" class="nag" hidden>
+  <span>PTG-MEM is free for personal use. You have used it for <b id="nagDays"></b> days — if it saves your team time, a Pro licence keeps it going and unlocks cross-project memory.</span>
+  <button class="ghost" id="nagClose">Later</button>
+</div>
+
+<main>
+  <nav class="tabs" role="tablist">
+    <button data-tab="live" class="on">Live</button>
+    <button data-tab="search">Search</button>
+    <button data-tab="decisions">Decisions</button>
+    <button data-tab="graph">Graph</button>
+    <button data-tab="settings">Settings</button>
+  </nav>
+
+  <section id="tab-live" class="tab on">
+    <div class="sectionhead">
+      <h2>What your agent was told</h2>
+      <p class="muted">Every prompt, the memory attached to it automatically, and every file that changed memory — live.</p>
+    </div>
+    <div id="feed" class="feed"></div>
+  </section>
+
+  <section id="tab-search" class="tab">
+    <form id="searchForm" class="searchbar">
+      <input id="q" type="search" placeholder="Search memory by meaning — e.g. “why did we drop batching”" autocomplete="off">
+      <label class="check"><input type="checkbox" id="allProjects"> all projects <span class="pro">Pro</span></label>
+      <button type="submit">Search</button>
+    </form>
+    <div class="split">
+      <div id="results" class="results"></div>
+      <aside id="detail" class="detail empty">Pick a result to see its full text, its relations and its line of thought.</aside>
+    </div>
+  </section>
+
+  <section id="tab-decisions" class="tab">
+    <div class="sectionhead row">
+      <div>
+        <h2>Decision log</h2>
+        <p class="muted">What replaced, contradicted, fixed or revised what — so nobody re-proposes a dead end.</p>
+      </div>
+      <button id="exportBtn" class="ghost">Export .md <span class="pro">Pro</span></button>
+    </div>
+    <div id="decisions" class="decisions"></div>
+  </section>
+
+  <section id="tab-graph" class="tab">
+    <div class="sectionhead row">
+      <div>
+        <h2>Neighbourhood</h2>
+        <p class="muted" id="graphHint">Select a memory in Search (or click one in Live) to see how it connects.</p>
+      </div>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div class="graphwrap"><canvas id="graph"></canvas><div id="graphTip" class="tip" hidden></div></div>
+  </section>
+
+  <section id="tab-settings" class="tab">
+    <div class="grid2">
+      <div class="card">
+        <h3>Automatic context</h3>
+        <label class="row"><input type="checkbox" id="injEnabled"> Attach relevant memory to every prompt</label>
+        <label class="row"><input type="checkbox" id="injBrief"> Session brief at start (open threads)</label>
+        <label>Budget per prompt <b id="budgetVal"></b> chars<input type="range" id="injBudget" min="800" max="8000" step="200"></label>
+        <label>Max items <b id="itemsVal"></b><input type="range" id="injItems" min="1" max="10" step="1"></label>
+        <label>Min similarity <b id="scoreVal"></b><input type="range" id="injScore" min="0.30" max="0.80" step="0.01"></label>
+        <label>Free the embedder (VRAM) after <b id="idleVal"></b> min idle<input type="range" id="idle" min="1" max="60" step="1"></label>
+        <p class="muted small">Changes apply immediately to every connected agent.</p>
+      </div>
+      <div class="card">
+        <h3>Licence</h3>
+        <div id="licInfo"></div>
+        <form id="licForm" class="row">
+          <input id="licKey" placeholder="PTGMEM-…" autocomplete="off">
+          <button type="submit">Activate</button>
+        </form>
+        <ul id="features" class="features"></ul>
+        <p class="muted small">Free for personal use. Pro is for teams and heavy users; a company licence also lifts the AGPL obligations.</p>
+      </div>
+      <div class="card wide">
+        <h3>Daemon</h3>
+        <div id="daemonInfo" class="mono small"></div>
+        <div class="row gap">
+          <button class="ghost" id="saveBtn">Save now</button>
+          <button class="ghost" id="unloadBtn">Free VRAM now</button>
+          <button class="ghost" id="rescanBtn">Rescan project</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="modal" class="modal" hidden>
+  <div class="modal-box">
+    <h3>This is a Pro feature</h3>
+    <p id="modalText"></p>
+    <p class="muted small">Everything a single developer needs stays free. Pro unlocks cross-project memory, decision-log export and memory packs.</p>
+    <button id="modalClose">OK</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

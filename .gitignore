@@ -33,3 +33,9 @@ ptg.log*
 Thumbs.db
 .idea/
 .vscode/
+
+# Secrets and local backups
+*.pem
+*.bak-ptg-*
+.pytest_cache/
+

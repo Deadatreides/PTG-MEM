@@ -12,8 +12,8 @@ ptg_core.py — основная логика Personal Thought Graph (Лично
 Что изменилось относительно предыдущей версии:
 
 ПАТЧ 1 — атом теперь = ОДИН вопрос + ОДИН ответ (Q+A), а не абзац.
-ПАТЧ 2 — эмбеддинги только через LM Studio (http://localhost:1234),
-          без sentence-transformers и без hash-фолбэка. Если LM Studio
+ПАТЧ 2 — эмбеддинги только через сервер эмбеддингов (http://localhost:1234),
+          без sentence-transformers и без hash-фолбэка. Если сервер эмбеддингов
           недоступен — построение архива блокируется.
 ПАТЧ 3 — перед обработкой чат-логов сканируются README/ARCHITECTURE/
           INSTALL/docs/*.md и строится root_project.json — семантический
@@ -28,7 +28,7 @@ ptg_core.py — основная логика Personal Thought Graph (Лично
           статусом, но никогда не удаляются и не перезаписываются.
 
 Конвейер для одного атома (Q+A пара):
-    1. эмбеддинг через LM Studio
+    1. эмбеддинг через сервер эмбеддингов
     2. сравнение с "головой" каждой активной ветки
     3. сравнение со старыми (не "голова") узлами
     4. решение: continues / branches / returns_to
@@ -65,33 +65,33 @@ except ImportError:
     _HAS_OLEFILE = False
 
 # ---------------------------------------------------------------------------
-# ПАТЧ 2 — настройки LM Studio
+# ПАТЧ 2 — настройки сервер эмбеддингов
 # ---------------------------------------------------------------------------
-LM_STUDIO_BASE_URL = "http://localhost:1234/v1"
-# Точное имя модели зависит от того, что загружено в LM Studio (см. вкладку
+EMBED_SERVER_URL = "http://localhost:1234/v1"
+# Точное имя модели зависит от того, что загружено в сервер эмбеддингов (см. вкладку
 # Local Server). Если это имя не совпадёт со списком из GET /v1/models,
 # Embedder автоматически возьмёт первую доступную модель из списка.
-LM_STUDIO_EMBED_MODEL = "qwen3.5-embedding"
-LM_STUDIO_TIMEOUT_CONNECT = 3
+EMBED_SERVER_MODEL = "qwen3.5-embedding"
+EMBED_SERVER_TIMEOUT_CONNECT = 3
 # ПАТЧ 18, фикс бага #1: раньше _probe_embed() использовал
-# LM_STUDIO_TIMEOUT_CONNECT (3 сек) — рассчитан на лёгкий GET /v1/models,
+# EMBED_SERVER_TIMEOUT_CONNECT (3 сек) — рассчитан на лёгкий GET /v1/models,
 # а не на реальный POST /v1/embeddings. Если GPU занят предыдущим большим
 # батчем (например, эмбеддинг длинных текстов структуры проекта), пробный
 # запрос может встать в очередь дольше 3 сек и словить ложный timeout —
 # из-за чего код ошибочно считал рабочую модель нерабочей и переключался
 # на другую (в реальном логе именно так — рабочая text-embedding-qwen3-
-# embedding-4b была отброшена, LM Studio выгрузил её из VRAM и загрузил
+# embedding-4b была отброшена, сервер эмбеддингов выгрузил её из VRAM и загрузил
 # nomic-embed-text-v1.5 ВМЕСТО неё, посреди уже строящегося архива).
-LM_STUDIO_TIMEOUT_PROBE = 30
-LM_STUDIO_TIMEOUT_EMBED = 120
+EMBED_SERVER_TIMEOUT_PROBE = 30
+EMBED_SERVER_TIMEOUT_EMBED = 120
 # ПАТЧ 20, фикс реального инцидента: батч из 17 текстов структуры проекта
-# (до 6000 симв. каждый) реально обрабатывался LM Studio ~121 секунду на
+# (до 6000 симв. каждый) реально обрабатывался сервер эмбеддингов ~121 секунду на
 # GTX 1660 Super 6ГБ (модель+KV-кэш+compute buffer требуют ~8.4ГБ — больше,
 # чем есть VRAM, отсюда медленная обработка) — наш плоский таймаут 120с
 # оборвал соединение буквально за секунду до реального завершения запроса
 # на сервере. Timeout должен МАСШТАБИРОВАТЬСЯ с объёмом батча, а не быть
 # одним числом на любой размер запроса — см. Embedder.embed()/_embed_timeout_for().
-EMBED_TIMEOUT_BASE = LM_STUDIO_TIMEOUT_EMBED   # минимум — как раньше, для маленьких батчей
+EMBED_TIMEOUT_BASE = EMBED_SERVER_TIMEOUT_EMBED   # минимум — как раньше, для маленьких батчей
 EMBED_TIMEOUT_PER_1K_CHARS = 5                  # доп. секунд на каждую 1000 симв. суммарного батча
 EMBED_TIMEOUT_MAX = 1800                        # потолок 30 минут — не ждать буквально бесконечно
 
@@ -177,7 +177,7 @@ TEXT_EXTS = {
 # в папку, которую сканирует PTG.
 ROOT_DOC_PREFIXES = ("README", "ARCHITECTURE", "INSTALL")
 MIN_BLOCK_CHARS = 10
-EMBED_MAX_CHARS = 6000           # обрезка текста перед отправкой в LM Studio (не влияет на хранимый текст)
+EMBED_MAX_CHARS = 6000           # обрезка текста перед отправкой в сервер эмбеддингов (не влияет на хранимый текст)
 
 PTG_DIRNAME = ".ptg"
 NODES_FILE = "nodes.json"
@@ -297,25 +297,25 @@ def _metadata_affinity(meta_a: dict, meta_b: dict) -> float:
 
 
 # ---------------------------------------------------------------------------
-# ПАТЧ 2 — Embedder: только LM Studio, без фолбэков
+# ПАТЧ 2 — Embedder: только сервер эмбеддингов, без фолбэков
 # ---------------------------------------------------------------------------
 class Embedder:
-    """Эмбеддинги ИСКЛЮЧИТЕЛЬНО через локальный сервер LM Studio.
-    Никакого sentence-transformers, никакого hash-фолбэка — если LM Studio
+    """Эмбеддинги ИСКЛЮЧИТЕЛЬНО через локальный сервер сервер эмбеддингов.
+    Никакого sentence-transformers, никакого hash-фолбэка — если сервер эмбеддингов
     недоступен, вызывающий код обязан остановить построение архива."""
 
-    def __init__(self, base_url=LM_STUDIO_BASE_URL, model=LM_STUDIO_EMBED_MODEL):
+    def __init__(self, base_url=EMBED_SERVER_URL, model=EMBED_SERVER_MODEL):
         self.base_url = base_url
         self.model = model
         self.dim = None
-        self.backend = "lm-studio"
+        self.backend = "http"
 
     def test_connection(self, preferred_model: str = None):
         """GET /v1/models, затем ПРОБНЫЙ вызов /v1/embeddings для кандидатов,
         пока не найдётся реально рабочая embedding-модель.
 
         ПАТЧ 13 — раньше выбор модели был основан на имени: если настроенная
-        LM_STUDIO_EMBED_MODEL не находилась в списке, код либо падал, либо
+        EMBED_SERVER_MODEL не находилась в списке, код либо падал, либо
         (после прошлого фикса) молча брал первую попавшуюся модель — и это
         могло оказаться VL/чат-моделью, не поддерживающей /v1/embeddings
         (см. случай с qwen3-vl-embedding, давший 400 Bad Request). Имя
@@ -325,7 +325,7 @@ class Embedder:
         ПАТЧ 18 — preferred_model: если архив уже был построен КОНКРЕТНОЙ
         моделью (см. build(): self.embedder_model_used из meta), эта модель
         пробуется ПЕРВОЙ, раньше даже настроенной по умолчанию
-        LM_STUDIO_EMBED_MODEL — продолжать архив другой моделью означало бы
+        EMBED_SERVER_MODEL — продолжать архив другой моделью означало бы
         смешать несравнимые векторные пространства (см. Archive.build():
         жёсткая проверка после test_connection(), которая не даст этому
         случиться молча, даже если сюда закралась ошибка).
@@ -338,7 +338,7 @@ class Embedder:
         self.fallback_used = False
         self.probe_error = None
         try:
-            r = requests.get(f"{self.base_url}/models", timeout=LM_STUDIO_TIMEOUT_CONNECT)
+            r = requests.get(f"{self.base_url}/models", timeout=EMBED_SERVER_TIMEOUT_CONNECT)
             if r.status_code != 200:
                 return False
             data = r.json()
@@ -347,7 +347,7 @@ class Embedder:
             self.probe_error = str(ex)
             return False
         if not ids:
-            self.probe_error = "LM Studio не сообщил ни одной загруженной модели"
+            self.probe_error = "сервер эмбеддингов не сообщил ни одной загруженной модели"
             return False
 
         original_model = self.model
@@ -367,7 +367,7 @@ class Embedder:
                 # модель ошибочно бракуется и код уезжает на другую.
                 # Само по себе поведение (пробовать следующего кандидата)
                 # оставлено прежним — теперь неверно был только таймаут;
-                # с LM_STUDIO_TIMEOUT_PROBE=30 сек это должно происходить
+                # с EMBED_SERVER_TIMEOUT_PROBE=30 сек это должно происходить
                 # только при реальной недоступности модели.
                 last_error = f"{candidate}: {ex}"
                 _log.warning(f"test_connection: проба «{candidate}» провалилась: {ex}")
@@ -396,7 +396,7 @@ class Embedder:
         resp = requests.post(
             f"{self.base_url}/embeddings",
             json={"model": model_id, "input": ["ping"]},
-            timeout=LM_STUDIO_TIMEOUT_PROBE,
+            timeout=EMBED_SERVER_TIMEOUT_PROBE,
         )
         if resp.status_code >= 400:
             return None
@@ -411,8 +411,8 @@ class Embedder:
         """ПАТЧ 20 — таймаут embed()-запроса, масштабированный по объёму
         батча, а не плоское число. Реальный инцидент: батч из 17 текстов
         структуры проекта (~100 000 симв. суммарно) честно обрабатывался
-        LM Studio ~121 секунду на слабом GPU (VRAM впритык/с overflow) —
-        плоский LM_STUDIO_TIMEOUT_EMBED=120 обрывал соединение на последней
+        сервер эмбеддингов ~121 секунду на слабом GPU (VRAM впритык/с overflow) —
+        плоский EMBED_SERVER_TIMEOUT_EMBED=120 обрывал соединение на последней
         секунде перед реальным завершением. Формула: базовый таймаут (как
         раньше) + EMBED_TIMEOUT_PER_1K_CHARS секунд на каждую 1000 символов
         суммарного батча, с потолком EMBED_TIMEOUT_MAX (не ждать буквально
@@ -436,14 +436,14 @@ class Embedder:
         elapsed = time.time() - t0
         if resp.status_code >= 400:
             # Фикс: raise_for_status() даёт только "400 Client Error: ..." без
-            # тела ответа — а именно в теле LM Studio обычно пишет РЕАЛЬНУЮ
+            # тела ответа — а именно в теле сервер эмбеддингов обычно пишет РЕАЛЬНУЮ
             # причину (например, "model does not support embeddings" для
             # VL/чат-моделей, ошибочно выбранных как embedding-модель).
             body = resp.text[:500]
             _log.error(f"embed(): HTTP {resp.status_code} от модели «{self.model}» "
                       f"за {elapsed:.1f}с: {body}")
             raise RuntimeError(
-                f"LM Studio вернул {resp.status_code} для модели '{self.model}': {body}"
+                f"сервер эмбеддингов вернул {resp.status_code} для модели '{self.model}': {body}"
             )
         data = resp.json()
         items = sorted(data["data"], key=lambda d: d.get("index", 0))
@@ -1395,12 +1395,12 @@ class Archive:
         if had_existing:
             self.log(f"Найден существующий архив с {len(self.nodes)} узлами — продолжаем его (append-only).")
 
-        # ПАТЧ 2 — без LM Studio построение не выполняется, фолбэков нет
-        self.log("Проверка соединения с LM Studio...")
+        # ПАТЧ 2 — без сервер эмбеддингов построение не выполняется, фолбэков нет
+        self.log("Проверка соединения с сервер эмбеддингов...")
         if not self.embedder.test_connection(preferred_model=self.embedder_model_used):
             reason = getattr(self.embedder, "probe_error", None)
-            msg = ("LM Studio недоступен на http://localhost:1234, либо ни одна из "
-                   "загруженных моделей не отвечает на /v1/embeddings. Запустите LM Studio, "
+            msg = ("сервер эмбеддингов недоступен на http://localhost:1234, либо ни одна из "
+                   "загруженных моделей не отвечает на /v1/embeddings. Запустите сервер эмбеддингов, "
                    "включите Local Server и загрузите ЛЮБУЮ модель эмбеддингов, затем повторите.")
             if reason:
                 msg += f" Причина последней попытки: {reason}"
@@ -1414,7 +1414,7 @@ class Archive:
         # ДРУГУЮ модель — продолжать НЕЛЬЗЯ: cosine-сравнения между векторами
         # из разных embedding-пространств бессмысленны и молча испортят
         # placement/поиск для всего архива. Раньше (до этого патча) такой
-        # проверки не было вообще — реальный инцидент: LM Studio на секунду
+        # проверки не было вообще — реальный инцидент: сервер эмбеддингов на секунду
         # не ответил рабочей моделью (короткий таймаут, см. фикс #1 выше),
         # код тихо переключился на другую модель ПОСРЕДИ уже строящегося
         # архива, и это прошло бы полностью незамеченным.
@@ -1422,25 +1422,25 @@ class Archive:
                 and self.embedder.model != self.embedder_model_used):
             msg = (
                 f"ОСТАНОВЛЕНО: архив уже построен моделью «{self.embedder_model_used}» "
-                f"(размерность {self.embedder_dim_used}), а сейчас LM Studio предоставил "
+                f"(размерность {self.embedder_dim_used}), а сейчас сервер эмбеддингов предоставил "
                 f"«{self.embedder.model}» (размерность {self.embedder.dim}). Это разные "
                 f"векторные пространства — продолжать сборку означало бы молча испортить "
                 f"согласованность всего архива (косинусные сравнения между старыми и новыми "
-                f"атомами станут бессмысленными). Загрузите в LM Studio именно "
+                f"атомами станут бессмысленными). Загрузите в сервер эмбеддингов именно "
                 f"«{self.embedder_model_used}» и повторите, либо создайте новый архив "
                 f"(другая папка/output_dir) для новой модели."
             )
             self.log(f"ОШИБКА: {msg}")
             raise ConnectionError(msg)
 
-        self.log(f"LM Studio подключён (модель: {self.embedder.model}).")
+        self.log(f"сервер эмбеддингов подключён (модель: {self.embedder.model}).")
         if getattr(self.embedder, "fallback_used", False):
             # ПАТЧ 13: это уже не угадывание по имени — модель прошла
             # реальный пробный вызов /v1/embeddings, так что предупреждение
             # чисто информационное (какая именно модель отличается от
             # изначально настроенной), а не тревога о возможном сбое.
             self.log(
-                f"ℹ Настроенная по умолчанию модель '{LM_STUDIO_EMBED_MODEL}' не найдена "
+                f"ℹ Настроенная по умолчанию модель '{EMBED_SERVER_MODEL}' не найдена "
                 f"или не прошла проверку — используется '{self.embedder.model}' (она "
                 f"успешно ответила на тестовый запрос эмбеддинга)."
             )
@@ -1465,7 +1465,7 @@ class Archive:
         # файлы/метаданные) может измениться независимо от содержимого
         # TEXT_EXTS-файлов (например, добавили .pdf или новую пустую папку).
         # Хэш сравнивается с прошлым build()-проходом — если структура не
-        # менялась, атом не пересоздаётся (не тратим вызов LM Studio зря).
+        # менялась, атом не пересоздаётся (не тратим вызов сервер эмбеддингов зря).
         self.log("Проверка структурного слепка проекта...")
         structure_texts = _build_project_structure_texts(self.folder)
         structure_combined = "\n".join(t for _, t in structure_texts)
@@ -1542,7 +1542,7 @@ class Archive:
             # ничего не потеряно навсегда), и цикл идёт дальше со следующим
             # файлом — так же, как структурные атомы (см. фикс выше).
             try:
-                self.log(f"  Эмбеддинг {len(atoms)} атом(ов) из {os.path.basename(path)} через LM Studio...")
+                self.log(f"  Эмбеддинг {len(atoms)} атом(ов) из {os.path.basename(path)} через сервер эмбеддингов...")
                 vecs = self.embedder.embed([a["text"] for a in atoms])
             except Exception as ex:
                 self.log(f"  ⚠ {os.path.basename(path)}: эмбеддинг не удался ({ex}) — "

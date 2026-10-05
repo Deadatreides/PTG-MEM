@@ -1,0 +1,20 @@
+{
+  "name": "ptg-mem",
+  "owner": {
+    "name": "Deadatreides",
+    "url": "https://github.com/Deadatreides"
+  },
+  "plugins": [
+    {
+      "name": "ptg-mem",
+      "description": "Chaos on your disk, order in your AI's context: local memory for Claude Code that attaches the relevant pieces to every prompt and marks what was later replaced or contradicted.",
+      "source": "./",
+      "keywords": [
+        "memory",
+        "context",
+        "mcp",
+        "local"
+      ]
+    }
+  ]
+}

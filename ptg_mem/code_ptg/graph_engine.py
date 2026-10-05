@@ -42,9 +42,13 @@ from typing import Optional
 import numpy as np
 
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+# В составе PTG-MEM ядро лежит в ptg_mem/core, и ptg_mem/__init__.py кладет эту
+# папку в sys.path. vendor_ptg — раскладка старого отдельного проекта Code PTG.
+_CORE_DIR = os.path.join(os.path.dirname(_THIS_DIR), "core")
 _VENDOR_DIR = os.path.join(os.path.dirname(_THIS_DIR), "vendor_ptg")
-if _VENDOR_DIR not in sys.path:
-    sys.path.insert(0, _VENDOR_DIR)
+for _p in (_VENDOR_DIR, _CORE_DIR):
+    if os.path.isdir(_p) and _p not in sys.path:
+        sys.path.insert(0, _p)
 
 import ptg_core as _ptg_core_module  # noqa: E402
 from ptg_core import Archive, Embedder  # noqa: E402
@@ -191,7 +195,7 @@ class GraphEngine:
         self.embeddings_available = False
         if use_embeddings:
             # Порядок выбора: переданный извне -> внутрипроцессный (если задана
-            # модель) -> LM Studio. Внутрипроцессный предпочтительнее: сервер
+            # модель) -> сервер эмбеддингов. Внутрипроцессный предпочтительнее: сервер
             # моделей на localhost — единая точка отказа, и для распространения
             # требовать его установки нельзя. См. local_embedder.py.
             if embedder is not None:
@@ -206,7 +210,7 @@ class GraphEngine:
             except Exception:
                 self.embeddings_available = False
         if not self.embeddings_available:
-            where = getattr(self.embedder, "backend", "lm-studio")
+            where = getattr(self.embedder, "backend", "http")
             self.archive.log(
                 f"Эмбеддер ({where}) недоступен или use_embeddings=False — "
                 "семантический графтинг concept-атомов отключён. Структурные "

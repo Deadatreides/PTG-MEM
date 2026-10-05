@@ -24,9 +24,13 @@ import sys
 import argparse
 import threading
 
-sys.path.insert(0, ".")
-from code_ptg.archive import CodeArchive, STRUCTURAL_EDGE_TYPES
-from code_ptg.graph_engine import Embedder
+try:
+    from ptg_mem.code_ptg.archive import CodeArchive, STRUCTURAL_EDGE_TYPES
+    from ptg_mem.code_ptg.graph_engine import Embedder
+except ImportError:  # запуск скриптом из клона репозитория, без pip install
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+    from ptg_mem.code_ptg.archive import CodeArchive, STRUCTURAL_EDGE_TYPES
+    from ptg_mem.code_ptg.graph_engine import Embedder
 
 try:
     from mcp.server.fastmcp import FastMCP
@@ -399,7 +403,7 @@ def code_ptg_neighbors(qualified_name: str, k: int = 12) -> dict:
 # 4. Здоровье эмбеддера
 # ---------------------------------------------------------------------------
 @mcp.tool()
-def code_ptg_lm_studio_status() -> dict:
+def code_ptg_embedder_status() -> dict:
     """Какой эмбеддер настроен и жив ли он.
 
     Нужен только при ИНДЕКСАЦИИ (без него карточки не графтятся по смыслу) и
@@ -409,15 +413,15 @@ def code_ptg_lm_studio_status() -> dict:
     Если задана переменная CODE_PTG_MODEL, проверяется внутрипроцессный
     эмбеддер, и никакого сервера на localhost не требуется вовсе."""
     if os.environ.get("CODE_PTG_MODEL"):
-        from code_ptg.local_embedder import LocalEmbedder
+        from ptg_mem.code_ptg.local_embedder import LocalEmbedder
         e = LocalEmbedder()
         ok = e.test_connection()
         return {"connected": ok, **e.status()}
     e = Embedder()
     ok = e.test_connection()
-    return {"connected": ok, "backend": "lm-studio",
+    return {"connected": ok, "backend": "http",
             "model": e.model if ok else None,
-            "замечание": "LM Studio не обязателен: задайте CODE_PTG_MODEL, и "
+            "замечание": "сервер эмбеддингов не обязателен: задайте CODE_PTG_MODEL, и "
                          "эмбеддер поднимется внутри процесса"}
 
 

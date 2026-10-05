@@ -7,8 +7,11 @@ import json
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(__file__))
-from code_ptg import CodeArchive
+try:
+    from ptg_mem.code_ptg import CodeArchive
+except ImportError:  # запуск скриптом из клона репозитория, без pip install
+    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+    from ptg_mem.code_ptg import CodeArchive
 
 
 def main():
@@ -28,7 +31,7 @@ def main():
     parser.add_argument("--no-embeddings", action="store_true")
     parser.add_argument("--model", default=None,
                         help="путь к модели sentence-transformers для эмбеддинга "
-                             "внутри процесса. Задан — LM Studio не нужен вовсе. "
+                             "внутри процесса. Задан — сервер эмбеддингов не нужен вовсе. "
                              "То же можно передать переменной CODE_PTG_MODEL")
     parser.add_argument("--device", default=None, help="cuda | cpu (по умолчанию — как есть)")
     parser.add_argument("--skip", default="", help="каталоги через запятую, которые не "

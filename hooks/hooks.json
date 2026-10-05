@@ -1,0 +1,38 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/bin/ptg-hook.py\" session-start 2>/dev/null || python \"${CLAUDE_PLUGIN_ROOT}/bin/ptg-hook.py\" session-start",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/bin/ptg-hook.py\" prompt 2>/dev/null || python \"${CLAUDE_PLUGIN_ROOT}/bin/ptg-hook.py\" prompt",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/bin/ptg-hook.py\" stop 2>/dev/null || python \"${CLAUDE_PLUGIN_ROOT}/bin/ptg-hook.py\" stop",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
+}

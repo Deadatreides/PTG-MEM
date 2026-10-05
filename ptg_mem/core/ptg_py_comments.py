@@ -23,6 +23,17 @@ from ptg_logging import get_logger
 
 _log = get_logger("py_comments")
 
+# Метки разделов попадают в текст атома, поэтому их язык — часть содержимого: сменить
+# его у существующего архива значит переписать все .py-атомы. По умолчанию русский, как
+# собран исходный архив; продуктовый слой ставит язык проекта (у новых — английский).
+LANG = "ru"
+LABELS = {
+    "ru": {"module": "docstring модуля", "class": "класс", "function": "функция",
+           "comments": "комментарии в коде"},
+    "en": {"module": "module docstring", "class": "class", "function": "function",
+           "comments": "code comments"},
+}
+
 
 def extract_py_comments_text(path: str):
     """Извлечь только докстринги и #-комментарии из .py-файла.
@@ -60,18 +71,19 @@ def extract_py_comments_text(path: str):
         source = raw.decode("latin-1", errors="ignore")
 
     pieces = []
+    lab = LABELS.get(LANG, LABELS["ru"])
 
     # 1. Docstring'и через ast
     try:
         tree = ast.parse(source)
         mod_doc = ast.get_docstring(tree)
         if mod_doc:
-            pieces.append(f"[docstring модуля]\n{mod_doc.strip()}")
+            pieces.append(f"[{lab['module']}]\n{mod_doc.strip()}")
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                 doc = ast.get_docstring(node)
                 if doc:
-                    kind = "класс" if isinstance(node, ast.ClassDef) else "функция"
+                    kind = lab["class"] if isinstance(node, ast.ClassDef) else lab["function"]
                     pieces.append(f"[docstring {kind} {node.name}]\n{doc.strip()}")
     except (SyntaxError, ValueError, RecursionError) as ex:
         _log.debug(f"ast.parse не удался для {path} ({ex}) — докстринги пропущены, "
@@ -89,7 +101,7 @@ def extract_py_comments_text(path: str):
         _log.debug(f"tokenize упал для {path} ({ex}) — использую {len(comments)} "
                   f"уже собранных комментариев до этого места")
     if comments:
-        pieces.append("[комментарии в коде]\n" + "\n".join(comments))
+        pieces.append("[%s]\n" % lab["comments"] + "\n".join(comments))
 
     if not pieces:
         return None
