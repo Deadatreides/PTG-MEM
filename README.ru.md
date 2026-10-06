@@ -74,6 +74,9 @@ ptg install claude               # хуки и MCP для этого проек�
 ptg gui                          # живое окно
 ```
 
+Если git на машине нет, ставьте готовый пакет из релиза:
+`pip install "ptg-mem[st] @ https://github.com/Deadatreides/PTG-MEM/releases/download/v0.2.0/ptg_mem-0.2.0-py3-none-any.whl"`.
+
 `[st]` ставит эмбеддер на CPU или GPU через sentence-transformers. При первом запуске `ptg init` скачает модель эмбеддингов по умолчанию (Qwen3-Embedding-0.6B,
 ~1,2 ГБ). Подойдет и GGUF через llama.cpp: `ptg init --gguf model.gguf` (нужен
 `pip install "ptg-mem[gguf] @ git+https://github.com/Deadatreides/PTG-MEM.git"`).

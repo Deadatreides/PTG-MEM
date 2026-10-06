@@ -75,6 +75,9 @@ ptg install claude               # hooks + MCP for this project (or: ptg install
 ptg gui                          # the live window
 ```
 
+No git on the machine? Install the release wheel instead:
+`pip install "ptg-mem[st] @ https://github.com/Deadatreides/PTG-MEM/releases/download/v0.2.0/ptg_mem-0.2.0-py3-none-any.whl"`.
+
 `[st]` brings a CPU/GPU embedder through sentence-transformers. `ptg init` downloads the default embedding model (Qwen3-Embedding-0.6B, ~1.2 GB) on first use. A
 GGUF model through llama.cpp works too: `ptg init --gguf model.gguf` (needs
 `pip install "ptg-mem[gguf] @ git+https://github.com/Deadatreides/PTG-MEM.git"`).
