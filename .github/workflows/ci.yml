@@ -44,7 +44,7 @@ jobs:
       - name: install the four engine packages (no model backends)
         run: |
           python -m pip install -e ".[test]" -e rev -e rev-shell -e rev-full -e rev-core
-          python -m pip install lancedb pyarrow markitdown chonkie detect-secrets deal hypothesis networkx scipy
+          python -m pip install lancedb pyarrow markitdown chonkie detect-secrets pathspec deal hypothesis networkx scipy
       - name: memcore
         working-directory: rev
         run: python -m pytest

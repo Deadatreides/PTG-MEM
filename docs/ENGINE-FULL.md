@@ -33,7 +33,7 @@ HTTP clients only.
 git clone https://github.com/Deadatreides/PTG-MEM.git && cd PTG-MEM
 python -m venv .venv-full
 .venv-full/Scripts/python -m pip install -e . -e rev -e rev-shell -e rev-full -e rev-core   # Linux/macOS: .venv-full/bin/python
-.venv-full/Scripts/python -m pip install lancedb pyarrow markitdown chonkie detect-secrets deal networkx scipy llama-cpp-python
+.venv-full/Scripts/python -m pip install lancedb pyarrow markitdown chonkie detect-secrets deal networkx scipy pathspec llama-cpp-python
 ```
 
 Use `sentence-transformers` instead of `llama-cpp-python` if your embedder is not GGUF.
