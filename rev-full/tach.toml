@@ -1,0 +1,102 @@
+source_roots = ["."]
+forbid_circular_dependencies = true
+
+[[modules]]
+path = "ptgfull"
+depends_on = ["ptgfull.adapter", "ptgfull.code", "ptgfull.metatree", "ptgfull.models", "ptgfull.spaces", "ptgfull.store", "ptgfull.types", "ptgfull.walk"]
+
+[[modules]]
+path = "ptgfull.adapter"
+depends_on = []
+
+[[modules]]
+path = "ptgfull.code"
+depends_on = ["ptgfull.code.process", "ptgfull.code.queries", "ptgfull.code.refs", "ptgfull.code.symbols", "ptgfull.code.table", "ptgfull.types"]
+
+[[modules]]
+path = "ptgfull.code.process"
+depends_on = []
+
+[[modules]]
+path = "ptgfull.code.queries"
+depends_on = []
+
+[[modules]]
+path = "ptgfull.code.refs"
+depends_on = []
+
+[[modules]]
+path = "ptgfull.code.symbols"
+depends_on = ["ptgfull.types"]
+
+[[modules]]
+path = "ptgfull.code.table"
+depends_on = []
+
+[[modules]]
+path = "ptgfull.metatree"
+depends_on = ["ptgfull.metatree.folders", "ptgfull.metatree.marks", "ptgfull.metatree.pairs", "ptgfull.metatree.paths", "ptgfull.metatree.sources", "ptgfull.metatree.symbols", "ptgfull.types"]
+
+[[modules]]
+path = "ptgfull.metatree.folders"
+depends_on = ["ptgfull.types"]
+
+[[modules]]
+path = "ptgfull.metatree.marks"
+depends_on = []
+
+[[modules]]
+path = "ptgfull.metatree.pairs"
+depends_on = ["ptgfull.types"]
+
+[[modules]]
+path = "ptgfull.metatree.paths"
+depends_on = ["ptgfull.types"]
+
+[[modules]]
+path = "ptgfull.metatree.sources"
+depends_on = ["ptgfull.types"]
+
+[[modules]]
+path = "ptgfull.metatree.symbols"
+depends_on = ["ptgfull.types"]
+
+[[modules]]
+path = "ptgfull.models"
+depends_on = ["ptgfull.spaces", "ptgfull.types"]
+
+[[modules]]
+path = "ptgfull.spaces"
+depends_on = ["ptgfull.types"]
+
+[[modules]]
+path = "ptgfull.store"
+depends_on = ["ptgfull.store.answer", "ptgfull.store.clause", "ptgfull.store.lookup", "ptgfull.store.tables", "ptgfull.store.unique", "ptgfull.types"]
+
+[[modules]]
+path = "ptgfull.store.answer"
+depends_on = ["ptgfull.types"]
+
+[[modules]]
+path = "ptgfull.store.clause"
+depends_on = []
+
+[[modules]]
+path = "ptgfull.store.lookup"
+depends_on = []
+
+[[modules]]
+path = "ptgfull.store.tables"
+depends_on = []
+
+[[modules]]
+path = "ptgfull.store.unique"
+depends_on = ["ptgfull.types"]
+
+[[modules]]
+path = "ptgfull.types"
+depends_on = []
+
+[[modules]]
+path = "ptgfull.walk"
+depends_on = ["ptgfull.types"]

@@ -1,7 +1,7 @@
 {
   "name": "ptg-mem",
   "displayName": "PTG-MEM: order in your AI's context",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Chaos on your disk, order in your AI's context. Local memory for Claude Code: indexes your project and past sessions in the background, attaches what matters to every prompt and marks what was later replaced or contradicted. No API keys, nothing leaves your machine.",
   "author": {
     "name": "Deadatreides",

@@ -116,8 +116,15 @@ class Daemon:
         threading.Thread(target=self._load, args=(pr,), daemon=True, name="ptg-load").start()
 
     def _load(self, pr: Project):
-        from .engine import MemoryEngine                 # heavy imports only when needed
         try:
+            # heavy imports only when needed; "engine": "full" — ptgcore (the full PTG), "v3" — engine3, else 0.2
+            kind = pr.cfg.get("engine")
+            if kind == "full":
+                from .engine_full import MemoryEngineFull as MemoryEngine
+            elif kind == "v3":
+                from .engine3 import MemoryEngine3 as MemoryEngine
+            else:
+                from .engine import MemoryEngine
             emb = self.embedder_for(pr.cfg["embedder"])
             eng = MemoryEngine(pr.cfg, emb, log=_log_line)
             eng.open()

@@ -34,6 +34,21 @@ Thumbs.db
 .idea/
 .vscode/
 
+# Tiny synthetic format 6 store for the migration test (4-dim vectors, two atoms)
+!rev-core/tests/fixtures/store_v6/
+!rev-core/tests/fixtures/store_v6/data/
+!rev-core/tests/fixtures/store_v6/data/*
+
+# Engine 0.3 work folders: environments, kit state, check caches
+.venv-*/
+.rptg-kit/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+.cbmignore
+# LanceDB tables (the doctests of ptgfull create small ones in the package folder)
+*.lance/
+
 # Secrets and local backups
 *.pem
 *.bak-ptg-*

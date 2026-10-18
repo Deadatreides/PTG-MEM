@@ -1,0 +1,74 @@
+source_roots = ["."]
+forbid_circular_dependencies = true
+
+[[modules]]
+path = "memcore"
+depends_on = ["memcore.context", "memcore.filtering", "memcore.relations", "memcore.scrubbing", "memcore.search", "memcore.sync", "memcore.types"]
+
+[[modules]]
+path = "memcore.context"
+depends_on = ["memcore.context.dedup", "memcore.context.labeling", "memcore.context.packing", "memcore.context.ranking", "memcore.types"]
+
+[[modules]]
+path = "memcore.context.dedup"
+depends_on = ["memcore.types"]
+
+[[modules]]
+path = "memcore.context.labeling"
+depends_on = ["memcore.types"]
+
+[[modules]]
+path = "memcore.context.packing"
+depends_on = ["memcore.types"]
+
+[[modules]]
+path = "memcore.context.ranking"
+depends_on = ["memcore.types"]
+
+[[modules]]
+path = "memcore.filtering"
+depends_on = ["memcore.types"]
+
+[[modules]]
+path = "memcore.relations"
+depends_on = ["memcore.types"]
+
+[[modules]]
+path = "memcore.scrubbing"
+depends_on = ["memcore.scrubbing.extension", "memcore.scrubbing.merging", "memcore.scrubbing.provider", "memcore.scrubbing.redaction", "memcore.scrubbing.starts", "memcore.scrubbing.vendor", "memcore.types"]
+
+[[modules]]
+path = "memcore.scrubbing.extension"
+depends_on = []
+
+[[modules]]
+path = "memcore.scrubbing.merging"
+depends_on = []
+
+[[modules]]
+path = "memcore.scrubbing.provider"
+depends_on = []
+
+[[modules]]
+path = "memcore.scrubbing.redaction"
+depends_on = ["memcore.types"]
+
+[[modules]]
+path = "memcore.scrubbing.starts"
+depends_on = ["memcore.types"]
+
+[[modules]]
+path = "memcore.scrubbing.vendor"
+depends_on = ["memcore.types"]
+
+[[modules]]
+path = "memcore.search"
+depends_on = ["memcore.types"]
+
+[[modules]]
+path = "memcore.sync"
+depends_on = ["memcore.types"]
+
+[[modules]]
+path = "memcore.types"
+depends_on = []

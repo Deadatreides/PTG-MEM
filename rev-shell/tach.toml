@@ -1,0 +1,42 @@
+source_roots = ["."]
+forbid_circular_dependencies = true
+
+[[modules]]
+path = "memshell"
+depends_on = ["memshell.atoms", "memshell.decisions", "memshell.recall", "memshell.render", "memshell.sources", "memshell.types"]
+
+[[modules]]
+path = "memshell.atoms"
+depends_on = ["memshell.types"]
+
+[[modules]]
+path = "memshell.decisions"
+depends_on = ["memshell.types"]
+
+[[modules]]
+path = "memshell.recall"
+depends_on = ["memshell.types"]
+
+[[modules]]
+path = "memshell.render"
+depends_on = ["memshell.render.budget", "memshell.render.lines", "memshell.types"]
+
+[[modules]]
+path = "memshell.render.budget"
+depends_on = []
+
+[[modules]]
+path = "memshell.render.lines"
+depends_on = ["memshell.render.text", "memshell.types"]
+
+[[modules]]
+path = "memshell.render.text"
+depends_on = []
+
+[[modules]]
+path = "memshell.sources"
+depends_on = []
+
+[[modules]]
+path = "memshell.types"
+depends_on = []

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ptg-mem"
-version = "0.2.0"
+version = "0.3.0"
 description = "Chaos on your disk, order in your AI's context: local memory for Claude Code and Codex that knows what was replaced, plus a code map for legacy."
 readme = "README.md"
 requires-python = ">=3.10"

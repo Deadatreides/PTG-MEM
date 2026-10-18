@@ -1,0 +1,182 @@
+source_roots = ["."]
+forbid_circular_dependencies = true
+
+[[modules]]
+path = "ptgcore"
+depends_on = ["ptgcore.codegraph", "ptgcore.context", "ptgcore.intake", "ptgcore.ledger", "ptgcore.migration", "ptgcore.relations", "ptgcore.retrieval", "ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.codegraph"
+depends_on = ["ptgcore.codegraph.marks", "ptgcore.codegraph.rebuild", "ptgcore.codegraph.scan", "ptgcore.codegraph.seams", "ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.codegraph.marks"
+depends_on = []
+
+[[modules]]
+path = "ptgcore.codegraph.rebuild"
+depends_on = ["ptgcore.codegraph.marks", "ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.codegraph.scan"
+depends_on = []
+
+[[modules]]
+path = "ptgcore.codegraph.seams"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.context"
+depends_on = ["ptgcore.context.admission", "ptgcore.context.block", "ptgcore.context.digest", "ptgcore.context.marks", "ptgcore.context.selection", "ptgcore.context.sessions", "ptgcore.relations", "ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.context.admission"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.context.block"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.context.digest"
+depends_on = ["ptgcore.relations", "ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.context.marks"
+depends_on = ["ptgcore.relations", "ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.context.selection"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.context.sessions"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.intake"
+depends_on = ["ptgcore.intake.clean", "ptgcore.intake.listing", "ptgcore.intake.reading", "ptgcore.intake.sessions", "ptgcore.intake.shaping", "ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.intake.clean"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.intake.listing"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.intake.reading"
+depends_on = []
+
+[[modules]]
+path = "ptgcore.intake.sessions"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.intake.shaping"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.ledger"
+depends_on = ["ptgcore.ledger.atoms", "ptgcore.ledger.clause", "ptgcore.ledger.entry_table", "ptgcore.ledger.file_table", "ptgcore.ledger.files", "ptgcore.ledger.order", "ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.ledger.atoms"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.ledger.clause"
+depends_on = []
+
+[[modules]]
+path = "ptgcore.ledger.entry_table"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.ledger.file_table"
+depends_on = []
+
+[[modules]]
+path = "ptgcore.ledger.files"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.ledger.order"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.migration"
+depends_on = ["ptgcore.ledger", "ptgcore.migration.atoms", "ptgcore.migration.disk", "ptgcore.migration.layout", "ptgcore.migration.links", "ptgcore.migration.scalars", "ptgcore.relations", "ptgcore.retrieval", "ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.migration.atoms"
+depends_on = ["ptgcore.migration.scalars", "ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.migration.disk"
+depends_on = []
+
+[[modules]]
+path = "ptgcore.migration.layout"
+depends_on = ["ptgcore.migration.scalars"]
+
+[[modules]]
+path = "ptgcore.migration.links"
+depends_on = ["ptgcore.migration.scalars", "ptgcore.relations", "ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.migration.scalars"
+depends_on = []
+
+[[modules]]
+path = "ptgcore.relations"
+depends_on = ["ptgcore.relations.chain", "ptgcore.relations.claim", "ptgcore.relations.feed", "ptgcore.relations.hood", "ptgcore.relations.show", "ptgcore.relations.state", "ptgcore.relations.table", "ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.relations.chain"
+depends_on = []
+
+[[modules]]
+path = "ptgcore.relations.claim"
+depends_on = []
+
+[[modules]]
+path = "ptgcore.relations.feed"
+depends_on = ["ptgcore.relations.show", "ptgcore.relations.state", "ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.relations.hood"
+depends_on = ["ptgcore.relations.show", "ptgcore.relations.state", "ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.relations.show"
+depends_on = []
+
+[[modules]]
+path = "ptgcore.relations.state"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.relations.table"
+depends_on = []
+
+[[modules]]
+path = "ptgcore.retrieval"
+depends_on = ["ptgcore.relations", "ptgcore.retrieval.cards", "ptgcore.retrieval.prewrite", "ptgcore.retrieval.queries", "ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.retrieval.cards"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.retrieval.prewrite"
+depends_on = ["ptgcore.types"]
+
+[[modules]]
+path = "ptgcore.retrieval.queries"
+depends_on = []
+
+[[modules]]
+path = "ptgcore.types"
+depends_on = []

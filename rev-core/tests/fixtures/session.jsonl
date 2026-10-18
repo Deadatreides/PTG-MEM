@@ -1,0 +1,5 @@
+{"type": "user", "timestamp": "2025-10-09T08:00:00Z", "cwd": "H:/proj", "message": {"role": "user", "content": "Какой базой храним векторы памяти?"}}
+{"type": "assistant", "timestamp": "2025-10-09T08:00:05Z", "message": {"role": "assistant", "content": [{"type": "text", "text": "Храним в LanceDB: вектор, полнотекст и SQL в одной таблице."}, {"type": "tool_use", "name": "Edit", "input": {"file_path": "H:/proj/memcore/filtering.py"}}]}}
+{"type": "user", "timestamp": "2025-10-09T08:01:00Z", "message": {"role": "user", "content": "<system-reminder>служебное</system-reminder>"}}
+{"type": "user", "timestamp": "2025-10-09T08:02:00Z", "message": {"role": "user", "content": "А граф кода откуда берём?"}}
+{"type": "assistant", "timestamp": "2025-10-09T08:02:09Z", "message": {"role": "assistant", "content": [{"type": "text", "text": "Граф кода строит codebase-memory-mcp целиком."}]}}

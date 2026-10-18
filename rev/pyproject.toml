@@ -1,0 +1,35 @@
+[project]
+name = "memcore"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["deal"]
+
+[tool.mypy]
+strict = true
+
+[tool.ruff]
+line-length = 140
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "C90", "TID251", "S", "T20"]
+ignore = ["E501", "S101", "F401"]  # F401: импорты карточки объявляют зависимости до того, как их вызовет код
+
+[tool.ruff.lint.mccabe]
+max-complexity = 20
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"os".msg = "файловая система и процессы — только в узле с effects: io"
+"subprocess".msg = "процессы — только в узле с effects: io"
+"socket".msg = "сеть — только в узле с effects: io"
+"shutil".msg = "файловая система — только в узле с effects: io"
+"urllib".msg = "сеть — только в узле с effects: io"
+"http".msg = "сеть — только в узле с effects: io"
+"ctypes".msg = "машинный код — не допускается"
+"importlib".msg = "динамический импорт — не допускается"
+
+[tool.ruff.lint.per-file-ignores]
+
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules -q -p no:cacheprovider"
+testpaths = ["memcore", "tests"]

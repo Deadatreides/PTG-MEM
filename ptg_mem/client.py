@@ -69,7 +69,10 @@ def spawn_daemon() -> None:
     """Start the daemon detached from the caller (a hook or an MCP server must
     not own it: they come and go with the session, memory should not)."""
     paths.ensure_home()
-    exe = sys.executable
+    cfg = paths.load_config()
+    # the daemon may need another interpreter than the hook's (the full engine wants lancedb, llama.cpp and the kit
+    # packages; the hooks stay on the system Python): config "python", plus "python_path" for packages from checkouts
+    exe = cfg.get("python") if cfg.get("python") and os.path.exists(cfg["python"]) else sys.executable
     if os.name == "nt":
         w = os.path.join(os.path.dirname(exe), "pythonw.exe")
         if os.path.exists(w):
@@ -85,8 +88,9 @@ def spawn_daemon() -> None:
     # the package may run from a checkout rather than an install: make it importable
     pkg_parent = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     pp = os.environ.get("PYTHONPATH")
+    extra = [p for p in (cfg.get("python_path") or []) if os.path.isdir(p)] if exe != sys.executable else []
     env = dict(os.environ, PYTHONUTF8="1", PYTHONIOENCODING="utf-8",
-               PYTHONPATH=pkg_parent + (os.pathsep + pp if pp else ""))
+               PYTHONPATH=os.pathsep.join([pkg_parent, *extra]) + (os.pathsep + pp if pp else ""))
     subprocess.Popen([exe, "-m", "ptg_mem.daemon"], env=env, **kwargs)
 
 

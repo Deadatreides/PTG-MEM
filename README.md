@@ -39,6 +39,35 @@ a model and it goes wrong in predictable ways.
 * **Shows its work.** A local window lists every prompt with exactly what was attached to it, plus
   search and the decision log.
 
+## New in 0.3: the full engine (opt-in)
+
+0.3 adds a second engine behind the same daemon, hooks, MCP and window. You turn it on per project with
+`"engine": "full"`. It rebuilds the memory on measured ready parts:
+
+* **storage:** LanceDB keeps vectors, full text and SQL in one table;
+* **search:** RRF of words and every embedding model you use;
+* **links:** each link has a validity date (Graphiti-style), and the agent can declare its kind;
+* **code:** a code graph from codebase-memory-mcp;
+* **metatree:** it finally ties chat and session memory to the code they touched, through `edits`, `reads` and
+  `mentions` seams.
+
+On the author's live store the full engine finds more than 0.2:
+
+| | 0.2 engine | full engine |
+|---|---|---|
+| the right atom in the first ten | 29 of 47 | 40 of 47 |
+| prompt context with the right atom | 18 of 47 | 31 of 47 |
+| prompt-context latency, median | 0.15 s | 1.3–1.5 s |
+
+The price is speed, so the 0.2 engine stays the default.
+
+* Setup and layout: [docs/ENGINE-FULL.md](docs/ENGINE-FULL.md).
+* Why it was rewritten and what each part replaced: [docs/HISTORY.md](docs/HISTORY.md).
+
+The engine is four small packages (`rev/`, `rev-shell/`, `rev-full/`, `rev-core/`). Each one was written card by
+card through the rptg kit and accepted by ready checks (mypy, tach, ruff, deal, Hypothesis, CrossHair), with no model
+in the loop.
+
 ## Code nobody here wrote
 
 Legacy is the same kind of pile. Whether a colleague wrote it in 2014 or Claude wrote it yesterday,
@@ -52,8 +81,9 @@ and answers your agent's questions over MCP:
   away;
 * **the card's version history.**
 
-Python, and C/C++/CUDA through tree-sitter. Today it is a separate CLI and MCP server; one-command
-setup through `ptg install` comes next. Its console messages are still partly in Russian.
+Python, and C/C++/CUDA through tree-sitter. This is the 0.2 code map: a separate CLI and MCP server. Its console
+messages are still partly in Russian. The full engine of 0.3 uses codebase-memory-mcp instead, for the repositories
+you list in `code_repos`, and links its symbols to your memory.
 
 ```bash
 python -m ptg_mem.code_ptg.cli index --project path/to/code --no-embeddings
@@ -156,9 +186,11 @@ Companies that cannot use AGPL: see [COMMERCIAL.md](COMMERCIAL.md).
 I'm a design engineer, not a programmer. Six months of experiments with local models left thousands
 of chat logs, notes and scripts on my disk, and the agent kept building on decisions I had already
 reversed. PTG-MEM started as a fix for my own mess. The measurements behind it are in
-[LLM-MEASUREMENTS](https://github.com/Deadatreides/LLM-MEASUREMENTS).
+[LLM-MEASUREMENTS](https://github.com/Deadatreides/LLM-MEASUREMENTS). The whole road, from a desktop thought graph to
+the full engine, is in [docs/HISTORY.md](docs/HISTORY.md).
 
 ## Status and support
 
-Early (0.2). Each release announces the next one. Issues are read, but there is no support
-obligation.
+Early (0.3). The full engine runs the author's own memory daily, but it has been tried on one machine only, and its
+latency is the open problem. Changes are listed in [CHANGELOG.md](CHANGELOG.md). Issues are read, but there is no
+support obligation.

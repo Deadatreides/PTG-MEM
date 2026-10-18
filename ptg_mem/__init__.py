@@ -10,7 +10,7 @@ put on ``sys.path`` here once, before anything imports it.
 import os
 import sys
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 for _sub in ("core", "v4", "v5"):
