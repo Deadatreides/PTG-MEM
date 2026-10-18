@@ -117,8 +117,8 @@ neighbouring turns after a hit.
     the prompt without memory.
   * Causes: links and metatree edges are read on every recall, LanceDB does a flat scan, the full-text index is
     rebuilt on each write, and recall waits for the embedder during ingestion.
-* **Tested on the author's machine only:** Windows 10, one GPU. The four packages' test suites need no model and no
-  GPU, but have not been run on Linux or macOS yet.
+* **Real-model runs on the author's machine only:** Windows 10, one GPU. The four packages' test suites need no
+  model and no GPU, and CI runs them on Linux and Windows, Python 3.11 and 3.12. macOS is not in CI yet.
 * **The code graph** covers only the repositories listed in `code_repos`, not the whole folder.
 * **Contracts in production.** The engine disables deal contracts at run time: with them, recall took 316 s.
   `PTG_MEM_CONTRACTS=1` turns them back on.
